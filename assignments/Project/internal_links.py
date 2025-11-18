@@ -8,8 +8,6 @@ import gzip
 import os
 import xml.etree.ElementTree as ET
 
-import yt_dlp  # pip install yt-dlp
-
 HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -20,79 +18,6 @@ HEADERS = {
     "Accept": "*/*",
 }
 
-
-def safe_get(url):
-    try:
-        r = requests.get(url, headers=HEADERS, timeout=10)
-        if r.status_code == 200:
-            return r.text
-    except:
-        pass
-    return ""
-
-
-def extract_youtube_id(url):
-    parsed = urlparse(url)
-    host = parsed.netloc.lower()
-
-    if "youtube.com" in host:
-        qs = parse_qs(parsed.query)
-        if "v" in qs:
-            return qs["v"][0]
-        if parsed.path.startswith("/embed/"):
-            return parsed.path.split("/embed/")[1]
-        if parsed.path.startswith("/shorts/"):
-            return parsed.path.split("/shorts/")[1]
-    if "youtu.be" in host:
-        return parsed.path.lstrip("/")
-    return None
-
-
-def get_youtube_transcription(url):
-    """
-    Uses yt-dlp to reliably fetch YouTube captions (auto-generated or manual)
-    Works for all URL types: watch?v=, embed/, shorts/, youtu.be
-    """
-    video_id = extract_youtube_id(url)
-    if not video_id:
-        return None
-
-    ydl_opts = {
-        "skip_download": True,
-        "writesubtitles": True,
-        "writeautomaticsub": True,
-        "subtitlesformat": "vtt",
-        "quiet": True,
-        "nocheckcertificate": True,
-    }
-
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        try:
-            info = ydl.extract_info(url, download=False)
-        except Exception as e:
-            print(f"  ✗ yt-dlp failed for {url}: {e}")
-            return None
-
-        subtitles = info.get("subtitles") or {}
-        auto_subs = info.get("automatic_captions") or {}
-
-        # Prefer auto-generated English
-        sub_url = None
-        if "en" in auto_subs:
-            sub_url = auto_subs["en"][0]["url"]
-        elif "en" in subtitles:
-            sub_url = subtitles["en"][0]["url"]
-
-        if sub_url:
-            r = requests.get(sub_url)
-            if r.ok:
-                lines = []
-                for line in r.text.splitlines():
-                    line = line.strip()
-                    if line and not line[0].isdigit() and "-->" not in line:
-                        lines.append(line)
-                return " ".join(lines)
-    return None
 
 
 IGNORED_SCHEMES = {"mailto", "javascript", "tel", "data", ""}
@@ -200,10 +125,10 @@ def scrape_and_store_locally(start_url, base_domain="https://pantelis.github.io"
             resp = session.get(current_url, timeout=10)
             resp.raise_for_status()
             soup = BeautifulSoup(resp.text, 'html.parser')
-            youtube_transcription = None
 
             found_links = extract_links_from_soup(soup, current_url)
             new_internal_count = 0
+            
             for link in found_links:
                 parsed_link = urlparse(link)
                 if parsed_link.netloc == base_netloc:
@@ -212,13 +137,9 @@ def scrape_and_store_locally(start_url, base_domain="https://pantelis.github.io"
                         new_internal_count += 1
                     if link not in visited and link not in queue:
                         queue.append(link)
-                else:  # Capture YouTube links
-                    if "youtube.com" in parsed_link.netloc or "youtu.be" in parsed_link.netloc:
-                        print(f"\n\nFOUND YOUTUBE: {link}\n\n")
-                        youtube_transcription = get_youtube_transcription(link)
-                        print(f"TRANSCRIPTION IS {youtube_transcription}\n\n")
 
-            visible_text = youtube_transcription if youtube_transcription else get_visible_text_without_mutation(soup)
+            # Get the page's visible text
+            visible_text = get_visible_text_without_mutation(soup)
 
             page_document = {
                 'url': current_url,
@@ -227,9 +148,11 @@ def scrape_and_store_locally(start_url, base_domain="https://pantelis.github.io"
                 'scraped_at': datetime.now(timezone.utc).isoformat(),
                 'domain': base_domain
             }
+                
             scraped_pages.append(page_document)
             pages_stored += 1
             print(f"  ✓ Stored locally (text length: {len(visible_text)})")
+            print(f"text preview: {visible_text[:60]}...")
             print(f"  → Found {len(found_links)} total link candidates, {new_internal_count} new internal")
 
         except requests.RequestException as e:
