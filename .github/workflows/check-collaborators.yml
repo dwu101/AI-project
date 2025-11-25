@@ -10,7 +10,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.x'
+          python-version: "3.x"
 
       - name: Install Dependencies
         run: |
@@ -19,7 +19,7 @@ jobs:
 
       - name: Check Collaborators and Repository Privacy
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # This token is provided by Actions, no need to create one
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, no need to create one
           REPOSITORY: ${{ github.repository }}
         run: |
           import requests
@@ -31,7 +31,7 @@ jobs:
           RESET = '\033[0m'
 
           # List of GitHub users to check
-          users_to_check = ['Kamil-Arif', 'iiisoowzd', 'fatemehramezanii']  # Replace with actual usernames
+          users_to_check = ['kushagrayadv', 'lord-fourth0107']  
 
           action_result = 0
 
