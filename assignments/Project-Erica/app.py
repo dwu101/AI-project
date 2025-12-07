@@ -3,16 +3,13 @@ import requests
 
 app = Flask(__name__)
 
-# Your Google Colab ngrok URL (update this with your actual URL)
 COLAB_URL = "https://undaggled-nonrustically-eusebio.ngrok-free.dev"
 
 @app.route('/')
 def index():
-    """Render the main page"""
     return render_template('index.html')
 @app.route('/process', methods=['POST'])
 def process_text():
-    """Process the text input through Ollama on Google Colab"""
     data = request.get_json()
     user_input = data.get('text', '')
     
@@ -20,17 +17,14 @@ def process_text():
         return jsonify({'output': 'Please enter some text'}), 400
     
     try:
-        # Send request to Google Colab endpoint
         response = requests.post(
             f"{COLAB_URL}/query",
             json={'query': user_input},
-            timeout=120  # 2 minute timeout for longer responses
+            timeout=120  
         )
         
-        # Check if request was successful
         response.raise_for_status()
         
-        # Get the response from Colab
         colab_response = response.json()
         
         if colab_response.get('status') == 'success':
@@ -38,11 +32,9 @@ def process_text():
         else:
             processed_output = f"Error: {colab_response.get('error', 'Unknown error')}"
         
-        # Process the enrichment_df if it exists
         enrichment_data = None
         if 'enrichment_df' in colab_response and colab_response['enrichment_df'] is not None:
-            # If it's already a list of dictionaries, use it directly
-            # Otherwise, assume it needs to be converted
+            
             enrichment_data = colab_response['enrichment_df']
             
     except requests.exceptions.Timeout:
@@ -77,4 +69,4 @@ def health():
         }), 503
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5001)  # Changed to 5001 to avoid conflict
+    app.run(debug=True, host='0.0.0.0', port=5001) 

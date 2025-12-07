@@ -363,7 +363,6 @@
                 
                 const rawText = await response.text();
                 
-                // Clean NaN values before parsing JSON
                 const cleanedText = rawText.replace(/:\s*NaN/g, ': null')
                                           .replace(/:\s*nan/g, ': null');
                 
@@ -390,7 +389,6 @@
         function visualizeGraph(data) {
             document.getElementById('graph-svg').innerHTML = '';
             
-            // Helper function to handle NaN and null values
             function sanitizeValue(value, defaultValue = null) {
                 if (value === null || value === undefined || value === 'nan' || 
                     (typeof value === 'number' && isNaN(value)) ||
@@ -400,13 +398,11 @@
                 return value;
             }
             
-            // Helper function to extract a short relationship label from description (fallback only)
             function extractRelationshipLabel(description) {
                 if (!description) return 'RELATED_TO';
                 
                 const text = description.toLowerCase();
                 
-                // Check for common relationship patterns
                 if (text.includes('requires') || text.includes('require')) return 'REQUIRES';
                 if (text.includes('prerequisite')) return 'PREREQUISITE_FOR';
                 if (text.includes('explains') || text.includes('explain')) return 'EXPLAINS';
@@ -419,7 +415,6 @@
                 if (text.includes('produces') || text.includes('creates')) return 'PRODUCES';
                 if (text.includes('enables') || text.includes('enable')) return 'ENABLES';
                 
-                // Default fallback
                 return 'RELATED_TO';
             }
             
@@ -447,7 +442,6 @@
                     });
                 }
                 
-                // Use the actual relationship_type from data, fallback to extracting from description only if not present
                 const relationshipLabel = sanitizeValue(row.relationship_type, null) || extractRelationshipLabel(row.description);
                 
                 links.push({
@@ -461,7 +455,6 @@
             
             nodes = Array.from(nodesMap.values());
             
-            // Initial layout - simple circle arrangement
             const container = document.getElementById('graph-container');
             const width = container.clientWidth;
             const height = container.clientHeight;
@@ -508,7 +501,6 @@
                 .domain(['CONCEPT', 'ORGANIZATION', 'PERSON', 'TECHNOLOGY', 'EVENT'])
                 .range(['#667eea', '#f093fb', '#4facfe', '#43e97b', '#feca57']);
             
-            // Create links with source/target objects
             const linksWithObjects = links.map(link => ({
                 ...link,
                 source: nodes.find(n => n.id === link.source),
@@ -532,18 +524,15 @@
                 .attr('class', 'link-label-container')
                 .style('display', showLabels ? 'block' : 'none');
             
-            // Add background rectangles for labels
             linkLabels.append('rect')
                 .attr('class', 'link-label-bg')
                 .attr('rx', 4)
                 .attr('ry', 4);
             
-            // Add text on top of backgrounds
             const linkLabelTexts = linkLabels.append('text')
                 .attr('class', 'link-label')
                 .text(d => d.relationship || 'RELATED_TO');
             
-            // Calculate background rectangle sizes based on text
             linkLabels.each(function(d) {
                 const text = d3.select(this).select('text').node();
                 const bbox = text.getBBox();
@@ -623,10 +612,8 @@
         }
 
         function dragged(event, d) {
-            // Get the current zoom transform
             const transform = d3.zoomTransform(svg.node());
             
-            // Calculate the position in the transformed coordinate system
             d.x = (event.x - transform.x) / transform.k;
             d.y = (event.y - transform.y) / transform.k;
             
@@ -638,18 +625,15 @@
         }
 
         function updatePositions() {
-            // Update link positions
             linkElements
                 .attr('x1', d => d.source.x)
                 .attr('y1', d => d.source.y)
                 .attr('x2', d => d.target.x)
                 .attr('y2', d => d.target.y);
             
-            // Update link label positions
             linkLabels
                 .attr('transform', d => `translate(${(d.source.x + d.target.x) / 2},${(d.source.y + d.target.y) / 2})`);
             
-            // Update node positions
             nodeElements
                 .attr('transform', d => `translate(${d.x},${d.y})`);
         }
@@ -705,7 +689,6 @@
             const width = container.clientWidth;
             const height = container.clientHeight;
             
-            // Calculate bounding box of all nodes
             let minX = Infinity, maxX = -Infinity;
             let minY = Infinity, maxY = -Infinity;
             
@@ -721,14 +704,12 @@
             const graphCenterX = (minX + maxX) / 2;
             const graphCenterY = (minY + maxY) / 2;
             
-            // Calculate scale to fit
             const scale = Math.min(
                 (width * 0.8) / graphWidth,
                 (height * 0.8) / graphHeight,
                 1
             );
             
-            // Calculate translation to center
             const translateX = width / 2 - graphCenterX * scale;
             const translateY = height / 2 - graphCenterY * scale;
             

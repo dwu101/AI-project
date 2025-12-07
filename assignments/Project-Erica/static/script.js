@@ -12,7 +12,6 @@ async function submitText() {
         return;
     }
     
-    // Show loading state
     loading.style.display = 'block';
     submitBtn.disabled = true;
     textOutput.textContent = '';
@@ -39,13 +38,11 @@ async function submitText() {
         textOutput.textContent = 'Error processing your request. Please try again.';
         textOutput.style.color = '#dc3545';
     } finally {
-        // Hide loading state
         loading.style.display = 'none';
         submitBtn.disabled = false;
     }
 }
 
-// Allow Enter key to submit (Ctrl+Enter for new line)
 document.getElementById('textInput').addEventListener('keydown', function(event) {
     if (event.key === 'Enter' && !event.shiftKey && !event.ctrlKey) {
         event.preventDefault();
