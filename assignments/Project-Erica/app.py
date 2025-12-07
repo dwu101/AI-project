@@ -10,7 +10,6 @@ COLAB_URL = "https://undaggled-nonrustically-eusebio.ngrok-free.dev"
 def index():
     """Render the main page"""
     return render_template('index.html')
-
 @app.route('/process', methods=['POST'])
 def process_text():
     """Process the text input through Ollama on Google Colab"""
@@ -38,15 +37,29 @@ def process_text():
             processed_output = colab_response.get('response', 'No response received')
         else:
             processed_output = f"Error: {colab_response.get('error', 'Unknown error')}"
+        
+        # Process the enrichment_df if it exists
+        enrichment_data = None
+        if 'enrichment_df' in colab_response and colab_response['enrichment_df'] is not None:
+            # If it's already a list of dictionaries, use it directly
+            # Otherwise, assume it needs to be converted
+            enrichment_data = colab_response['enrichment_df']
             
     except requests.exceptions.Timeout:
         processed_output = "Request timed out. The model might be taking too long to respond."
+        enrichment_data = None
     except requests.exceptions.RequestException as e:
         processed_output = f"Error connecting to Colab: {str(e)}\n\nMake sure your Colab notebook is running and the ngrok URL is correct."
+        enrichment_data = None
     except Exception as e:
         processed_output = f"Unexpected error: {str(e)}"
+        enrichment_data = None
     
-    return jsonify({'output': processed_output})
+    print(enrichment_data)
+    return jsonify({
+        'output': processed_output,
+        'enrichment_df': enrichment_data
+    })
 
 @app.route('/health', methods=['GET'])
 def health():
