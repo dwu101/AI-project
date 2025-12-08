@@ -56,3 +56,11 @@ Provide a natural, conversational response that directly answers the user's ques
 
 USE ONLY RESOURCES FROM THE BASE RESPONSE AND ENRICHMENT. The Source_Citation in the given enrichment holds exactly and EXCLUSIVELY what you should be citing. DO NOT use any online resources.
 ```
+
+# Generated Responses
+
+
+
+# Collaboration
+
+Dan Wu (dw2872), Jinnie Shim (js14398)
