@@ -59,8 +59,13 @@ USE ONLY RESOURCES FROM THE BASE RESPONSE AND ENRICHMENT. The Source_Citation in
 
 # Generated Responses for the 3 test questions
 
+## Question 1
 ![Question 1](erica_response_q1.png "Question 1")
+
+## Question 2
 ![Question 2](erica_response_q2.png "Question 2")
+
+## Question 3
 
 
 
