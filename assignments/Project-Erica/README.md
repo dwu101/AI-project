@@ -57,7 +57,10 @@ Provide a natural, conversational response that directly answers the user's ques
 USE ONLY RESOURCES FROM THE BASE RESPONSE AND ENRICHMENT. The Source_Citation in the given enrichment holds exactly and EXCLUSIVELY what you should be citing. DO NOT use any online resources.
 ```
 
-# Generated Responses
+# Generated Responses for the 3 test questions
+
+[Question 1]('erica_response_q1')
+[Question 2]('erica_response_q2')
 
 
 
