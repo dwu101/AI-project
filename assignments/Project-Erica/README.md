@@ -66,7 +66,7 @@ USE ONLY RESOURCES FROM THE BASE RESPONSE AND ENRICHMENT. The Source_Citation in
 ![Question 2](erica_response_q2.png "Question 2")
 
 ## Question 3
-
+![Question 3](erica_response_q3.png "Question 3")
 
 
 # Collaboration
