@@ -69,6 +69,20 @@ USE ONLY RESOURCES FROM THE BASE RESPONSE AND ENRICHMENT. The Source_Citation in
 ![Question 3](erica_response_q3.png "Question 3")
 
 
+
+# Training Pipeline
+scraper.py looks through the course website, scrapes the content, and stores it in a .gz file.
+
+RAG_ingestion_pipeline.ipynb is used to inject the content into the RAG. 
+
+After it finishes injecting, createPedagogical.ipynb is used to enrich the information with creating relationships: PREREQUISITE_FOR, EXAMPLE_OF, NEAR_TRANSFER, and EXPLAINS. This utilizes ollama to classification.
+
+# Backend
+Once the training is complete, ngrok_endpoint.ipynb uses ngrok to expose a local Google Colab Flask endpoint, allowing our machines to open another Flask app and call the Google Colab endpoint when the user enters in a query. This returns the response text and nodes utilized.
+
+# Frontend
+The backend returns the response text (generated using the steps found in the section "SYSTEM PROMPTS FOR QUESTIONS" at the top of the file), and the nodes utilized. It displays the text to the user and puts together a visual of the RAG nodes that were utilized.
+
 # Collaboration
 
 Dan Wu (dw2872), Jinnie Shim (js14398)
